@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 
 namespace linalg
 {
@@ -8,7 +9,7 @@ template<int N>
 class vector
 {
 private:
-    float[N] data;
+    float data[N];
 
 public:
     const size_t n = N;
