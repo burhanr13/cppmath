@@ -49,10 +49,7 @@ public:
         }
     }
 
-    matrix(const matrix<M, N> &o) : matrix()
-    {
-        *this = o;
-    }
+    matrix(const matrix<M, N> &o) : matrix() { *this = o; }
 
     matrix<M, N> &operator=(const matrix<M, N> &o)
     {
@@ -66,35 +63,17 @@ public:
         return *this;
     }
 
-    ref_vector<N> &operator[](int i)
-    {
-        return rows[i];
-    }
+    ref_vector<N> &operator[](int i) { return rows[i]; }
 
-    ref_vector<N> &row(int i)
-    {
-        return (*this)[i];
-    }
+    ref_vector<N> &row(int i) { return (*this)[i]; }
 
-    ref_vector<M> &col(int j)
-    {
-        return cols[j];
-    }
+    ref_vector<M> &col(int j) { return cols[j]; }
 
-    const ref_vector<N> &operator[](int i) const
-    {
-        return rows[i];
-    }
+    const ref_vector<N> &operator[](int i) const { return rows[i]; }
 
-    const ref_vector<N> &row(int i) const
-    {
-        return (*this)[i];
-    }
+    const ref_vector<N> &row(int i) const { return (*this)[i]; }
 
-    const ref_vector<M> &col(int j) const
-    {
-        return cols[j];
-    }
+    const ref_vector<M> &col(int j) const { return cols[j]; }
 
     matrix<M, N> operator+(const matrix<M, N> &b) const
     {
@@ -120,10 +99,7 @@ public:
         return res /= s;
     }
 
-    friend matrix<M, N> operator*(double s, matrix<M, N> &a)
-    {
-        return a * s;
-    }
+    friend matrix<M, N> operator*(double s, matrix<M, N> &a) { return a * s; }
 
     matrix<M, N> &operator+=(const matrix<M, N> &b)
     {
@@ -173,10 +149,7 @@ public:
         return *this;
     }
 
-    matrix<M, N> operator-() const
-    {
-        return -1 * *this;
-    }
+    matrix<M, N> operator-() const { return -1 * *this; }
 
     template <size_t K>
     matrix<M, K> operator*(const matrix<N, K> &b) const
@@ -195,7 +168,7 @@ public:
     vector<M> operator*(const vector<N> &v) const
     {
         vector<N> res;
-        for (int i=0;i<M;i++)
+        for (int i = 0; i < M; i++)
         {
             res[i] = row(i) * v;
         }
@@ -204,15 +177,15 @@ public:
 
     void swapRows(int a, int b)
     {
-        for(int i = 0; i < N; i++)
+        for (int i = 0; i < N; i++)
         {
             std::swap(data[a][i], data[b][i]);
         }
     }
-    
+
     void swapCols(int a, int b)
     {
-        for(int j = 0; j < M; j++)
+        for (int j = 0; j < M; j++)
         {
             std::swap(data[j][a], data[j][b]);
         }
@@ -299,18 +272,12 @@ public:
         return sum;
     }
 
-    double &operator[](int i)
-    {
-        return *ptrs[i];
-    }
+    double &operator[](int i) { return *ptrs[i]; }
 
-    double operator[](int i) const
-    {
-        return *ptrs[i];
-    }
+    double operator[](int i) const { return *ptrs[i]; }
 
     template <size_t I, size_t J>
     friend class matrix;
 };
 
-}
+} // namespace linalg

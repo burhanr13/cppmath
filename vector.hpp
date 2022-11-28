@@ -33,10 +33,7 @@ public:
         }
     }
 
-    vector(const vector<N> &other)
-    {
-        (*this) = other;
-    }
+    vector(const vector<N> &other) { (*this) = other; }
 
     vector(const ref_vector<N> &o)
     {
@@ -55,15 +52,9 @@ public:
         return *this;
     }
 
-    double &operator[](int i)
-    {
-        return data[i];
-    }
+    double &operator[](int i) { return data[i]; }
 
-    double operator[](int i) const
-    {
-        return data[i];
-    }
+    double operator[](int i) const { return data[i]; }
 
     vector<N> &operator+=(const vector<N> &o)
     {
@@ -115,22 +106,16 @@ public:
         return res;
     }
 
-    vector<N> operator*(double s) const 
+    vector<N> operator*(double s) const
     {
         auto res = *this;
         res *= s;
         return res;
     }
 
-    friend vector<N> operator*(double s, const vector<N> &v)
-    {
-        return v * s;
-    }
+    friend vector<N> operator*(double s, const vector<N> &v) { return v * s; }
 
-    vector<N> operator-() const
-    {
-        return -1 * *this;
-    }
+    vector<N> operator-() const { return -1 * *this; }
 
     vector<N> operator/(double s) const
     {
@@ -142,27 +127,27 @@ public:
     double operator*(const vector<N> &o) const
     {
         double sum = 0;
-        for (int i=0;i<N;i++)
+        for (int i = 0; i < N; i++)
         {
-            sum += data[i]*o[i];
+            sum += data[i] * o[i];
         }
         return sum;
     }
 
-    matrix<N,1> to_col() const
+    matrix<N, 1> to_col() const
     {
-        matrix<N,1> res;
-        for (int i = 0;i<N;i++)
+        matrix<N, 1> res;
+        for (int i = 0; i < N; i++)
         {
             res[i][0] = data[i];
         }
         return res;
     }
 
-    matrix<1,N> to_row() const
+    matrix<1, N> to_row() const
     {
-        matrix<1,N> res;
-        for (int i = 0;i<N;i++)
+        matrix<1, N> res;
+        for (int i = 0; i < N; i++)
         {
             res[0][i] = data[i];
         }
@@ -182,7 +167,8 @@ public:
 
 vector<3> cross(const vector<3> &a, const vector<3> &b)
 {
-    return {a[2]*b[3]-a[3]*b[2], a[3]*b[1]-a[1]*b[3], a[1]*b[2]-a[2]*b[1]};
+    return {a[2] * b[3] - a[3] * b[2], a[3] * b[1] - a[1] * b[3],
+            a[1] * b[2] - a[2] * b[1]};
 }
 
-}
+} // namespace linalg
