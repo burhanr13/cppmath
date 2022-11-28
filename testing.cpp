@@ -28,5 +28,11 @@ int main()
     std::cout << a;
     std::cout << a.T();
 
+    linalg::vector<3> v1 = {1,2,3};
+    linalg::vector<3> v2 = 2 * v1;
+    linalg::vector<3> v3 = v1/5 - v2;
+    std::cout << v1 << v2 << v3 << v1 * v2;
+    std::cout << b << b * v1;
+
     return 0;
 }
