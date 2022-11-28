@@ -44,8 +44,10 @@ public:
             {
                 data[i][j] = el;
                 j++;
+                if (j >= N) break;
             }
             i++;
+            if (i >= M) break;
         }
     }
 
@@ -63,17 +65,35 @@ public:
         return *this;
     }
 
-    ref_vector<N> &operator[](int i) { return rows[i]; }
+    ref_vector<N> &operator[](int i)
+    {
+        return rows[i];
+    }
 
-    ref_vector<N> &row(int i) { return (*this)[i]; }
+    ref_vector<N> &row(int i)
+    {
+        return (*this)[i];
+    }
 
-    ref_vector<M> &col(int j) { return cols[j]; }
+    ref_vector<M> &col(int j)
+    {
+        return cols[j];
+    }
 
-    const ref_vector<N> &operator[](int i) const { return rows[i]; }
+    const ref_vector<N> &operator[](int i) const
+    {
+        return rows[i];
+    }
 
-    const ref_vector<N> &row(int i) const { return (*this)[i]; }
+    const ref_vector<N> &row(int i) const
+    {
+        return (*this)[i];
+    }
 
-    const ref_vector<M> &col(int j) const { return cols[j]; }
+    const ref_vector<M> &col(int j) const
+    {
+        return cols[j];
+    }
 
     matrix<M, N> operator+(const matrix<M, N> &b) const
     {
@@ -167,10 +187,10 @@ public:
 
     vector<M> operator*(const vector<N> &v) const
     {
-        vector<N> res;
+        vector<M> res;
         for (int i = 0; i < M; i++)
         {
-            res[i] = row(i) * v;
+            res[i] = vector<N>(row(i)) * v;
         }
         return res;
     }
@@ -223,7 +243,7 @@ template <size_t N>
 class ref_vector
 {
 private:
-    double *const ptrs[N];
+    double *ptrs[N];
 
 public:
     ref_vector<N> &operator+=(const ref_vector<N> &o)
@@ -272,9 +292,15 @@ public:
         return sum;
     }
 
-    double &operator[](int i) { return *ptrs[i]; }
+    double &operator[](int i)
+    {
+        return *ptrs[i];
+    }
 
-    double operator[](int i) const { return *ptrs[i]; }
+    double operator[](int i) const
+    {
+        return *ptrs[i];
+    }
 
     template <size_t I, size_t J>
     friend class matrix;

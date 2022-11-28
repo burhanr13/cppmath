@@ -6,6 +6,12 @@
 namespace linalg
 {
 
+template <size_t M, size_t N>
+class matrix;
+
+template <size_t N>
+class ref_vector;
+
 template <size_t N>
 class vector
 {
@@ -28,7 +34,7 @@ public:
         int i = 0;
         for (double a : l)
         {
-            data[i] = l;
+            data[i] = a;
             i++;
         }
     }
@@ -113,9 +119,15 @@ public:
         return res;
     }
 
-    friend vector<N> operator*(double s, const vector<N> &v) { return v * s; }
+    friend vector<N> operator*(double s, const vector<N> &v)
+    {
+        return v * s;
+    }
 
-    vector<N> operator-() const { return -1 * *this; }
+    vector<N> operator-() const
+    {
+        return -1 * *this;
+    }
 
     vector<N> operator/(double s) const
     {
@@ -162,13 +174,14 @@ public:
             s << v.data[i] << ' ';
         }
         s << "]\n";
+        return s;
     }
 };
 
 vector<3> cross(const vector<3> &a, const vector<3> &b)
 {
-    return {a[2] * b[3] - a[3] * b[2], a[3] * b[1] - a[1] * b[3],
-            a[1] * b[2] - a[2] * b[1]};
+    return {a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2],
+            a[0] * b[1] - a[1] * b[0]};
 }
 
 } // namespace linalg

@@ -1,4 +1,5 @@
 #include "matrix.hpp"
+#include "vector.hpp"
 #include <iostream>
 
 int main()
@@ -33,6 +34,8 @@ int main()
     linalg::vector<3> v3 = v1/5 - v2;
     std::cout << v1 << v2 << v3 << v1 * v2;
     std::cout << b << b * v1;
+
+    std::cout << linalg::cross({1, 0, 0}, {0, 1, 0});
 
     return 0;
 }
