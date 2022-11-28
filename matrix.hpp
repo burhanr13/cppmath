@@ -1,7 +1,7 @@
 #pragma once
 
-#include <iostream>
 #include "vector.hpp"
+#include <iostream>
 
 namespace linalg
 {
@@ -13,7 +13,7 @@ template <size_t M, size_t N>
 class matrix
 {
 private:
-    float data[M][N];
+    double data[M][N];
     ref_vector<N> rows[M];
     ref_vector<M> cols[N];
 
@@ -31,6 +31,21 @@ public:
                 cols[j].ptrs[i] = rows[i].ptrs[j] = &data[i][j];
                 data[i][j] = 0;
             }
+        }
+    }
+
+    matrix(std::initializer_list<std::initializer_list<double>> arr) : matrix()
+    {
+        int i = 0;
+        for (auto &row : arr)
+        {
+            int j = 0;
+            for (double el : row)
+            {
+                data[i][j] = el;
+                j++;
+            }
+            i++;
         }
     }
 
@@ -63,8 +78,6 @@ public:
 
     ref_vector<M> &col(int j)
     {
-        if (j < 0 || j >= N)
-            throw "index out of bounds";
         return cols[j];
     }
 
@@ -95,19 +108,19 @@ public:
         return res -= b;
     }
 
-    matrix<M, N> operator*(float s) const
+    matrix<M, N> operator*(double s) const
     {
         matrix<M, N> res = *this;
         return res *= s;
     }
 
-    matrix<M, N> operator/(float s) const
+    matrix<M, N> operator/(double s) const
     {
         matrix<M, N> res = *this;
         return res /= s;
     }
 
-    friend matrix<M, N> operator*(float s, matrix<M, N> a)
+    friend matrix<M, N> operator*(double s, matrix<M, N> &a)
     {
         return a * s;
     }
@@ -136,7 +149,7 @@ public:
         return *this;
     }
 
-    matrix<M, N> &operator*=(float s)
+    matrix<M, N> &operator*=(double s)
     {
         for (int i = 0; i < M; i++)
         {
@@ -148,7 +161,7 @@ public:
         return *this;
     }
 
-    matrix<M, N> &operator/=(float s)
+    matrix<M, N> &operator/=(double s)
     {
         for (int i = 0; i < M; i++)
         {
@@ -179,7 +192,46 @@ public:
         return res;
     }
 
-    friend std::ostream &operator<<(std::ostream &s, matrix a)
+    vector<M> operator*(const vector<N> &v) const
+    {
+        vector<N> res;
+        for (int i=0;i<M;i++)
+        {
+            res[i] = row(i) * v;
+        }
+        return res;
+    }
+
+    void swapRows(int a, int b)
+    {
+        for(int i = 0; i < N; i++)
+        {
+            std::swap(data[a][i], data[b][i]);
+        }
+    }
+    
+    void swapCols(int a, int b)
+    {
+        for(int j = 0; j < M; j++)
+        {
+            std::swap(data[j][a], data[j][b]);
+        }
+    }
+
+    matrix<N, M> T() const
+    {
+        matrix<N, M> t;
+        for (int i = 0; i < M; i++)
+        {
+            for (int j = 0; j < N; j++)
+            {
+                t[j][i] = data[i][j];
+            }
+        }
+        return t;
+    }
+
+    friend std::ostream &operator<<(std::ostream &s, const matrix &a)
     {
         for (int i = 0; i < M; i++)
         {
@@ -198,7 +250,7 @@ template <size_t N>
 class ref_vector
 {
 private:
-    float *ptrs[N];
+    double *const ptrs[N];
 
 public:
     ref_vector<N> &operator+=(const ref_vector<N> &o)
@@ -219,7 +271,7 @@ public:
         return *this;
     }
 
-    ref_vector<N> &operator*=(float s)
+    ref_vector<N> &operator*=(double s)
     {
         for (int i = 0; i < N; i++)
         {
@@ -228,7 +280,7 @@ public:
         return *this;
     }
 
-    ref_vector<N> &operator/=(float s)
+    ref_vector<N> &operator/=(double s)
     {
         for (int i = 0; i < N; i++)
         {
@@ -237,9 +289,9 @@ public:
         return *this;
     }
 
-    float operator*(const ref_vector<N> &o) const
+    double operator*(const ref_vector<N> &o) const
     {
-        float sum = 0;
+        double sum = 0;
         for (int i = 0; i < N; i++)
         {
             sum += *ptrs[i] * *o.ptrs[i];
@@ -247,12 +299,12 @@ public:
         return sum;
     }
 
-    float &operator[](int i)
+    double &operator[](int i)
     {
         return *ptrs[i];
     }
 
-    float operator[](int i) const
+    double operator[](int i) const
     {
         return *ptrs[i];
     }
