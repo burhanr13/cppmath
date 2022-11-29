@@ -10,12 +10,6 @@ template <size_t M, size_t N>
 class matrix;
 
 template <size_t N>
-class ref_vector;
-
-template <size_t N>
-class const_ref_vector;
-
-template <size_t N>
 class vector
 {
 private:
@@ -49,22 +43,6 @@ public:
         (*this) = other;
     }
 
-    vector(const ref_vector<N> &o)
-    {
-        for (int i = 0; i < N; i++)
-        {
-            data[i] = o[i];
-        }
-    }
-
-    vector(const const_ref_vector<N> &o)
-    {
-        for (int i = 0; i < N; i++)
-        {
-            data[i] = o[i];
-        }
-    }
-
     vector<N> &operator=(const vector<N> &o)
     {
         for (int i = 0; i < N; i++)
@@ -81,6 +59,11 @@ public:
             if (data[i] != o.data[i]) return false;
         }
         return true;
+    }
+
+    bool operator!=(const vector<N> &o) const
+    {
+        return !(*this == o);
     }
 
     double &operator[](int i)
