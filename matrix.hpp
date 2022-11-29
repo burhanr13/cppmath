@@ -32,22 +32,17 @@ public:
         }
     }
 
-    matrix(std::initializer_list<std::initializer_list<double>> arr) : matrix()
+    matrix(std::initializer_list<vector<N>> arr)
     {
         int i = 0;
         for (auto &row : arr)
         {
-            int j = 0;
-            for (double el : row)
-            {
-                data[i][j] = el;
-                j++;
-            }
+            data[i] = row;
             i++;
         }
     }
 
-    matrix(const matrix<M, N> &o) : matrix()
+    matrix(const matrix<M, N> &o)
     {
         *this = o;
     }
