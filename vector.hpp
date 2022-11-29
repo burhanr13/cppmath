@@ -74,6 +74,15 @@ public:
         return *this;
     }
 
+    bool operator==(const vector<N> &o) const
+    {
+        for (int i = 0; i < N; i++)
+        {
+            if (data[i] != o.data[i]) return false;
+        }
+        return true;
+    }
+
     double &operator[](int i)
     {
         return data[i];

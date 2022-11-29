@@ -70,6 +70,18 @@ public:
         return *this;
     }
 
+    bool operator==(const matrix<M, N> &o) const
+    {
+        for (int i = 0; i < M; i++)
+        {
+            for (int j = 0; j < N; j++)
+            {
+                if (data[i][j] != o.data[i][j]) return false;
+            }
+        }
+        return true;
+    }
+
     double &operator()(int i, int j)
     {
         return data[i][j];
