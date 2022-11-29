@@ -12,6 +12,46 @@ class matrix
 private:
     vector<N> data[M];
 
+    template <size_t K>
+    double reduce(matrix<M, K> &right)
+    {
+        double det = 1;
+
+        int i = 0;
+        int j = 0;
+        while (i < M && j < N)
+        {
+            int k = j;
+            while (data[k][i] == 0)
+            {
+                k++;
+                if (k >= M)
+                {
+                    i++;
+                    k = j;
+                    if (i >= N) return 0;
+                }
+            }
+            std::swap(data[j], data[k]);
+            if (K != 0) std::swap(right[j], right[k]);
+
+            det *= data[j][i];
+            if (K != 0) right[j] /= data[j][i];
+            data[j] /= data[j][i];
+            for (int p = 0; p < M; p++)
+            {
+                if (p == j) continue;
+                
+                if (K != 0) right[p] -= data[p][i] * right[j];
+                data[p] -= data[p][i] * data[j];
+            }
+
+            i++;
+            j++;
+        }
+        return det;
+    }
+
 public:
     const size_t m = M;
     const size_t n = N;
@@ -189,9 +229,27 @@ public:
         return t;
     }
 
-    friend std::ostream &operator<<(std::ostream &s, const matrix &a)
+    matrix<N, N> inv() const
     {
-        for(auto &i : a.data)
+        if (M != N) return matrix<N, N>();
+        matrix<N, N> inv(1);
+        auto red = *this;
+        red.reduce(inv);
+        return inv;
+    }
+
+    double det() const
+    {
+        if (M != N) return 0;
+        auto red = *this;
+        auto dummy = matrix<N, 0>();
+        return red.reduce(dummy);
+    }
+
+    friend std::ostream &
+    operator<<(std::ostream &s, const matrix &a)
+    {
+        for (auto &i : a.data)
         {
             s << i;
         }
