@@ -13,6 +13,9 @@ template <size_t N>
 class ref_vector;
 
 template <size_t N>
+class const_ref_vector;
+
+template <size_t N>
 class vector
 {
 private:
@@ -21,11 +24,13 @@ private:
 public:
     const size_t n = N;
 
-    vector()
+    vector() {}
+
+    vector(double x)
     {
-        for (auto &i : data)
+        for (int i = 0; i < N; i++)
         {
-            i = 0;
+            data[i] = x;
         }
     }
 
@@ -39,9 +44,20 @@ public:
         }
     }
 
-    vector(const vector<N> &other) { (*this) = other; }
+    vector(const vector<N> &other)
+    {
+        (*this) = other;
+    }
 
     vector(const ref_vector<N> &o)
+    {
+        for (int i = 0; i < N; i++)
+        {
+            data[i] = o[i];
+        }
+    }
+
+    vector(const const_ref_vector<N> &o)
     {
         for (int i = 0; i < N; i++)
         {
@@ -58,9 +74,15 @@ public:
         return *this;
     }
 
-    double &operator[](int i) { return data[i]; }
+    double &operator[](int i)
+    {
+        return data[i];
+    }
 
-    double operator[](int i) const { return data[i]; }
+    double operator[](int i) const
+    {
+        return data[i];
+    }
 
     vector<N> &operator+=(const vector<N> &o)
     {

@@ -9,27 +9,31 @@ namespace linalg
 template <size_t N>
 class ref_vector;
 
+template <size_t N>
+class const_ref_vector;
+
 template <size_t M, size_t N>
 class matrix
 {
 private:
     double data[M][N];
-    ref_vector<N> rows[M];
-    ref_vector<M> cols[N];
 
 public:
     const size_t m = M;
     const size_t n = N;
 
-    matrix()
-    {
+    matrix() {}
 
+    matrix(double x)
+    {
         for (int i = 0; i < M; i++)
         {
             for (int j = 0; j < N; j++)
             {
-                cols[j].ptrs[i] = rows[i].ptrs[j] = &data[i][j];
-                data[i][j] = 0;
+                if (i == j)
+                    data[i][j] = x;
+                else
+                    data[i][j] = 0;
             }
         }
     }
@@ -44,14 +48,15 @@ public:
             {
                 data[i][j] = el;
                 j++;
-                if (j >= N) break;
             }
             i++;
-            if (i >= M) break;
         }
     }
 
-    matrix(const matrix<M, N> &o) : matrix() { *this = o; }
+    matrix(const matrix<M, N> &o) : matrix()
+    {
+        *this = o;
+    }
 
     matrix<M, N> &operator=(const matrix<M, N> &o)
     {
@@ -65,34 +70,44 @@ public:
         return *this;
     }
 
-    ref_vector<N> &operator[](int i)
+    double &operator()(int i, int j)
     {
-        return rows[i];
+        return data[i][j];
     }
 
-    ref_vector<N> &row(int i)
+    double operator()(int i, int j) const
     {
-        return (*this)[i];
+        return data[i][j];
     }
 
-    ref_vector<M> &col(int j)
+    ref_vector<N> operator[](int i)
     {
-        return cols[j];
+        return row(i);
     }
 
-    const ref_vector<N> &operator[](int i) const
+    ref_vector<N> row(int i)
     {
-        return rows[i];
+        return ref_vector<N>(&(data[0][0]), i * N, 1);
     }
 
-    const ref_vector<N> &row(int i) const
+    ref_vector<M> col(int j)
     {
-        return (*this)[i];
+        return ref_vector<M>(&(data[0][0]), j, M);
     }
 
-    const ref_vector<M> &col(int j) const
+    const ref_vector<N> operator[](int i) const
     {
-        return cols[j];
+        return row(i);
+    }
+
+    const_ref_vector<N> row(int i) const
+    {
+        return const_ref_vector<N>(&(data[0][0]), i * N, 1);
+    }
+
+    const_ref_vector<M> col(int j) const
+    {
+        return const_ref_vector<M>(&(data[0][0]), j, M);
     }
 
     matrix<M, N> operator+(const matrix<M, N> &b) const
@@ -179,7 +194,11 @@ public:
         {
             for (int j = 0; j < K; j++)
             {
-                res[i][j] = row(i) * b.col(j);
+                res.data[i][j] = 0;
+                for (int k = 0; k < N; k++)
+                {
+                    res.data[i][j] += data[i][k] * b.data[k][j];
+                }
             }
         }
         return res;
@@ -190,7 +209,11 @@ public:
         vector<M> res;
         for (int i = 0; i < M; i++)
         {
-            res[i] = vector<N>(row(i)) * v;
+            res[i] = 0;
+            for (int j = 0; j < N; j++)
+            {
+                res[i] += data[i][j] * v[j];
+            }
         }
         return res;
     }
@@ -218,7 +241,7 @@ public:
         {
             for (int j = 0; j < N; j++)
             {
-                t[j][i] = data[i][j];
+                t.data[j][i] = data[i][j];
             }
         }
         return t;
@@ -237,20 +260,45 @@ public:
         }
         return s;
     }
+
+    template <size_t I, size_t J>
+    friend class matrix;
 };
 
 template <size_t N>
 class ref_vector
 {
 private:
-    double *ptrs[N];
+    double *const data;
+    const size_t start;
+    const size_t step;
 
 public:
+    ref_vector(double *const data, size_t start, size_t step) : data(data), start(start), step(step) {}
+
+    ref_vector<N> &operator=(const ref_vector<N> &o)
+    {
+        for (int i = 0; i < N; i++)
+        {
+            (*this)[i] = o[i];
+        }
+        return *this;
+    }
+
+    ref_vector<N> &operator=(const vector<N> &o)
+    {
+        for (int i = 0; i < N; i++)
+        {
+            (*this)[i] = o[i];
+        }
+        return *this;
+    }
+
     ref_vector<N> &operator+=(const ref_vector<N> &o)
     {
         for (int i = 0; i < N; i++)
         {
-            *ptrs[i] += *o.ptrs[i];
+            (*this)[i] += o[i];
         }
         return *this;
     }
@@ -259,7 +307,7 @@ public:
     {
         for (int i = 0; i < N; i++)
         {
-            *ptrs[i] -= *o.ptrs[i];
+            (*this)[i] -= o[i];
         }
         return *this;
     }
@@ -268,7 +316,7 @@ public:
     {
         for (int i = 0; i < N; i++)
         {
-            *ptrs[i] *= s;
+            (*this)[i] *= s;
         }
         return *this;
     }
@@ -277,7 +325,7 @@ public:
     {
         for (int i = 0; i < N; i++)
         {
-            *ptrs[i] /= s;
+            (*this)[i] /= s;
         }
         return *this;
     }
@@ -287,23 +335,40 @@ public:
         double sum = 0;
         for (int i = 0; i < N; i++)
         {
-            sum += *ptrs[i] * *o.ptrs[i];
+            sum += (*this)[i] * o[i];
         }
         return sum;
     }
 
     double &operator[](int i)
     {
-        return *ptrs[i];
+        return *(data + start + (i * step));
     }
 
     double operator[](int i) const
     {
-        return *ptrs[i];
+        return *(data + start + (i * step));
     }
 
     template <size_t I, size_t J>
     friend class matrix;
+};
+
+template <size_t N>
+class const_ref_vector
+{
+private:
+    const double *const data;
+    const size_t start;
+    const size_t step;
+
+public:
+    const_ref_vector(const double *data, size_t start, size_t step) : data(data), start(start), step(step) {}
+
+    double operator[](int i) const
+    {
+        return *(data + start + (i * step));
+    }
 };
 
 } // namespace linalg

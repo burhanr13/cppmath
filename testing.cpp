@@ -37,5 +37,9 @@ int main()
 
     std::cout << linalg::cross({1, 0, 0}, {0, 1, 0});
 
+    std::cout << linalg::matrix<3,3>(1) * linalg::matrix<3,3>({{1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
+
+    std::cout << linalg::matrix<5, 5>(1) << linalg::vector<3>(0);
+
     return 0;
 }
