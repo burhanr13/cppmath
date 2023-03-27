@@ -1,39 +1,67 @@
-#include "vector.hpp"
-#include <cmath>
 #include <initializer_list>
 #include <iostream>
+
+#include "vector.hpp"
 
 namespace algebra {
 
 class polynomial {
 private:
     linalg::vector v;
+    int _deg;
+
+    void recalc_deg();
 
 public:
-    polynomial() {}
+    const int& deg;
 
-    polynomial(std::initializer_list<double>& l) : v(l) {}
+    polynomial();
 
-    double operator[](int i) {
-        return v[i];
-    }
+    polynomial(std::initializer_list<double>& l);
 
-    double operator()(double x) {
-        double res = 0;
-        for (int i = 0; i < n; i++) {
-            res += v[i] * pow(x, i);
-        }
-        return res;
-    }
+    polynomial(double d);
 
-    friend std::ostream& operator<<(std::ostream& s, polynomial<n>& p) {
-        for (int i = 0; i < n; i++) {
-            s << v[i];
-            if (i > 0) s << 'x';
-            if (i > 1) s << '^' << i;
-            if (i < n - 1) s << " + ";
-        }
-        return s;
-    }
+    polynomial(const polynomial& o);
+
+    polynomial& operator=(const polynomial& o);
+
+    bool operator==(const polynomial& o) const;
+
+    bool operator!=(const polynomial& o) const;
+
+    double& operator[](int i);
+
+    double operator[](int i) const;
+
+    polynomial& operator+=(const polynomial& o);
+
+    polynomial& operator-=(const polynomial& o);
+
+    polynomial& operator*=(const polynomial& o);
+
+    polynomial operator+(const polynomial& o) const;
+
+    polynomial operator-(const polynomial& o) const;
+
+    polynomial operator*(const polynomial& o) const;
+
+    polynomial& operator*=(double d);
+
+    polynomial& operator/=(double d);
+
+    polynomial operator*(double d) const;
+
+    friend polynomial operator*(double d, const polynomial& p);
+
+    polynomial operator/(double d) const;
+
+    polynomial operator-() const;
+
+    polynomial operator()(const polynomial& o) const;
+
+    double operator()(double x);
+
+    friend std::ostream& operator<<(std::ostream& s, polynomial& p);
 };
+
 } // namespace algebra
