@@ -1,48 +1,54 @@
 #pragma once
 
-#include "vector.hpp"
 #include <iostream>
 
-namespace linalg
-{
+namespace linalg {
 
-template <size_t M, size_t N>
-class matrix
-{
+class vector;
+
+class matrix {
 private:
-    vector<N> data[M];
+    size_t _data_size;
+    size_t _vector_size;
+    vector* data;
 
-    template <size_t K>
-    double reduce(matrix<M, K> &right)
-    {
+    void reset_data(size_t m, size_t n) {
+        delete[] data;
+        _data_size = m;
+        _vector_size = n;
+        data = new vector[_data_size];
+        for (int i = 0; i < _data_size; i++) {
+            data[i].reset_data(_vector_size);
+        }
+    }
+
+    double reduce(matrix& right) {
+        if (right.m != m) throw std::invalid_argument("columns must match");
+
         double det = 1;
 
         int i = 0;
         int j = 0;
-        while (i < M && j < N)
-        {
+        while (i < m && j < n) {
             int k = j;
-            while (data[k][i] == 0)
-            {
+            while (data[k][i] == 0) {
                 k++;
-                if (k >= M)
-                {
+                if (k >= m) {
                     i++;
                     k = j;
-                    if (i >= N) return 0;
+                    if (i >= n) return 0;
                 }
             }
             std::swap(data[j], data[k]);
-            if (K != 0) std::swap(right[j], right[k]);
+            if (right.n != 0) std::swap(right[j], right[k]);
 
             det *= data[j][i];
-            if (K != 0) right[j] /= data[j][i];
+            if (right.n != 0) right[j] /= data[j][i];
             data[j] /= data[j][i];
-            for (int p = 0; p < M; p++)
-            {
+            for (int p = 0; p < m; p++) {
                 if (p == j) continue;
-                
-                if (K != 0) right[p] -= data[p][i] * right[j];
+
+                if (right.n != 0) right[p] -= data[p][i] * right[j];
                 data[p] -= data[p][i] * data[j];
             }
 
@@ -53,152 +59,141 @@ private:
     }
 
 public:
-    const size_t m = M;
-    const size_t n = N;
+    const size_t& m;
+    const size_t& n;
 
-    matrix() {}
+    matrix()
+        : m(_data_size), n(_vector_size), _data_size(0), _vector_size(0),
+          data(nullptr) {}
 
-    matrix(double x)
-    {
-        for (int i = 0; i < M; i++)
-        {
-            for (int j = 0; j < N; j++)
-            {
-                if (i == j)
-                    data[i][j] = x;
-                else
-                    data[i][j] = 0;
+    matrix(size_t m, size_t n)
+        : m(_data_size), n(_vector_size), _data_size(m), _vector_size(n) {
+        data = new vector[m];
+        for (int i = 0; i < m; i++) {
+            data[i].reset_data(n);
+        }
+    }
+
+    ~matrix() {
+        delete[] data;
+    }
+
+    matrix(size_t m, size_t n, double x) : matrix(m, n) {
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                data[i][j] = x;
             }
         }
     }
 
-    matrix(std::initializer_list<vector<N>> arr)
-    {
+    matrix(std::initializer_list<vector> arr)
+        : matrix(arr.size(), (*arr.begin()).n) {
         int i = 0;
-        for (auto &row : arr)
-        {
+        for (auto& row : arr) {
             data[i] = row;
             i++;
         }
     }
 
-    matrix(const matrix<M, N> &o)
-    {
+    matrix(const matrix& o) : matrix() {
         *this = o;
     }
 
-    matrix<M, N> &operator=(const matrix<M, N> &o)
-    {
-        for (int i = 0; i < M; i++)
-        {
+    matrix& operator=(const matrix& o) {
+        reset_data(o.m, o.n);
+        for (int i = 0; i < m; i++) {
             data[i] = o[i];
         }
         return *this;
     }
 
-    bool operator==(const matrix<M, N> &o) const
-    {
-        for (int i = 0; i < M; i++)
-        {
+    bool operator==(const matrix& o) const {
+        if (o.m != m || o.n != n) return false;
+        for (int i = 0; i < m; i++) {
             if (data[i] != o[i]) return false;
         }
         return true;
     }
 
-    bool operator!=(const matrix<M, N> &o) const
-    {
+    bool operator!=(const matrix& o) const {
         return !(*this == o);
     }
 
-    vector<N> &
-    operator[](int i)
-    {
+    vector& operator[](int i) {
+        if (i < 0 || i >= m) throw std::out_of_range("invalid index");
         return data[i];
     }
 
-    const vector<N> &operator[](int i) const
-    {
+    const vector& operator[](int i) const {
+        if (i < 0 || i >= m) throw std::out_of_range("invalid index");
         return data[i];
     }
 
-    matrix<M, N> operator+(const matrix<M, N> &b) const
-    {
-        matrix<M, N> res = *this;
+    matrix operator+(const matrix& b) const {
+        matrix res = *this;
         return res += b;
     }
 
-    matrix<M, N> operator-(const matrix<M, N> &b) const
-    {
-        matrix<M, N> res = *this;
+    matrix operator-(const matrix& b) const {
+        matrix res = *this;
         return res -= b;
     }
 
-    matrix<M, N> operator*(double s) const
-    {
-        matrix<M, N> res = *this;
+    matrix operator*(double s) const {
+        matrix res = *this;
         return res *= s;
     }
 
-    matrix<M, N> operator/(double s) const
-    {
-        matrix<M, N> res = *this;
+    matrix operator/(double s) const {
+        matrix res = *this;
         return res /= s;
     }
 
-    friend matrix<M, N> operator*(double s, matrix<M, N> &a)
-    {
+    friend matrix operator*(double s, const matrix& a) {
         return a * s;
     }
 
-    matrix<M, N> &operator+=(const matrix<M, N> &b)
-    {
-        for (int i = 0; i < M; i++)
-        {
+    matrix& operator+=(const matrix& b) {
+        for (int i = 0; i < std::min(m, b.m); i++) {
             data[i] += b[i];
         }
         return *this;
     }
 
-    matrix<M, N> &operator-=(const matrix<M, N> &b)
-    {
-        for (int i = 0; i < M; i++)
-        {
+    matrix& operator-=(const matrix& b) {
+        for (int i = 0; i < std::min(m, b.m); i++) {
             data[i] -= b[i];
         }
         return *this;
     }
 
-    matrix<M, N> &operator*=(double s)
-    {
-        for (int i = 0; i < M; i++)
-        {
+    matrix& operator*=(double s) {
+        for (int i = 0; i < m; i++) {
             data[i] *= s;
         }
         return *this;
     }
 
-    matrix<M, N> &operator/=(double s)
-    {
-        for (int i = 0; i < M; i++)
-        {
+    matrix& operator/=(double s) {
+        for (int i = 0; i < m; i++) {
             data[i] /= s;
         }
         return *this;
     }
 
-    matrix<M, N> operator-() const { return -1 * *this; }
+    matrix operator-() const {
+        return -1 * *this;
+    }
 
-    template <size_t K>
-    matrix<M, K> operator*(const matrix<N, K> &b) const
-    {
-        matrix<M, K> res;
-        for (int i = 0; i < M; i++)
-        {
-            for (int j = 0; j < K; j++)
-            {
+    matrix operator*(const matrix& b) const {
+        if (n != b.m)
+            throw std::invalid_argument(
+                "wrong dimension for matrix multiplication");
+        matrix res(m, b.n);
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < b.n; j++) {
                 res.data[i][j] = 0;
-                for (int k = 0; k < N; k++)
-                {
+                for (int k = 0; k < n; k++) {
                     res.data[i][j] += data[i][k] * b.data[k][j];
                 }
             }
@@ -206,58 +201,58 @@ public:
         return res;
     }
 
-    vector<M> operator*(const vector<N> &v) const
-    {
-        vector<M> res;
-        for (int i = 0; i < M; i++)
-        {
+    vector operator*(const vector& v) const {
+        vector res(m);
+        for (int i = 0; i < m; i++) {
             res[i] = data[i] * v;
         }
         return res;
     }
 
-    matrix<N, M> T() const
-    {
-        matrix<N, M> t;
-        for (int i = 0; i < M; i++)
-        {
-            for (int j = 0; j < N; j++)
-            {
+    matrix T() const {
+        matrix t(n, m);
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
                 t.data[j][i] = data[i][j];
             }
         }
         return t;
     }
 
-    matrix<N, N> inv() const
-    {
-        if (M != N) return matrix<N, N>();
-        matrix<N, N> inv(1);
+    matrix inv() const {
+        if (m != n)
+            throw std::invalid_argument("cannot invert nonsquare matrix");
+        matrix inv(n, n, 1);
         auto red = *this;
         red.reduce(inv);
         return inv;
     }
 
-    double det() const
-    {
-        if (M != N) return 0;
+    double det() const {
+        if (m != n) throw std::invalid_argument("cannot calculate determinant");
         auto red = *this;
-        auto dummy = matrix<N, 0>();
+        auto dummy = matrix(n, 0);
         return red.reduce(dummy);
     }
 
-    friend std::ostream &
-    operator<<(std::ostream &s, const matrix &a)
-    {
-        for (auto &i : a.data)
-        {
-            s << i;
+    friend std::ostream& operator<<(std::ostream& s, const matrix& a) {
+        for (int i = 0; i < a.m; i++) {
+            s << a.data[i];
         }
         return s;
     }
 
-    template <size_t I, size_t J>
-    friend class matrix;
+    static matrix id(size_t n) {
+        matrix res = matrix(n, n, 0);
+        for (int i = 0; i < n;i++){
+            res[i][i] = 1;
+        }
+        return res;
+    }
+
+    static matrix zero(size_t m, size_t n){
+        return matrix(m, n, 0);
+    }
 };
 
 } // namespace linalg
