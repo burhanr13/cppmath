@@ -14,7 +14,7 @@ private:
 
     void reset_data(size_t m, size_t n);
 
-    double reduce(matrix& right);
+    double reduce(matrix& right, int& rank);
 
 public:
     const size_t& m;
@@ -71,6 +71,8 @@ public:
     matrix inv() const;
 
     double det() const;
+
+    int rank() const;
 
     friend std::ostream& operator<<(std::ostream& s, const matrix& a);
 

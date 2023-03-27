@@ -15,38 +15,43 @@ void matrix::reset_data(size_t m, size_t n) {
     }
 }
 
-double matrix::reduce(matrix& right) {
+double matrix::reduce(matrix& right, int& rank) {
     if (right.m != m) throw std::invalid_argument("columns must match");
 
     double det = 1;
 
+    rank = 0;
+
     int i = 0;
     int j = 0;
     while (i < m && j < n) {
-        int k = j;
-        while (data[k][i] == 0) {
+        int k = i;
+        while (data[k][j] == 0) {
             k++;
             if (k >= m) {
-                i++;
-                k = j;
-                if (i >= n) return 0;
+                j++;
+                k = i;
+                if (j >= n) return 0;
             }
         }
-        std::swap(data[j], data[k]);
-        if (right.n != 0) std::swap(right[j], right[k]);
+        if(k!=i){
+            std::swap(data[i], data[k]);
+            if (right.n != 0) std::swap(right[i], right[k]);
+        }
 
-        det *= data[j][i];
-        if (right.n != 0) right[j] /= data[j][i];
-        data[j] /= data[j][i];
+        det *= data[i][j];
+        if (right.n != 0) right[i] /= data[i][j];
+        data[i] /= data[i][j];
         for (int p = 0; p < m; p++) {
-            if (p == j) continue;
+            if (p == i) continue;
 
-            if (right.n != 0) right[p] -= data[p][i] * right[j];
-            data[p] -= data[p][i] * data[j];
+            if (right.n != 0) right[p] -= data[p][j] * right[i];
+            data[p] -= data[p][j] * data[i];
         }
 
         i++;
         j++;
+        rank++;
     }
     return det;
 }
@@ -210,23 +215,36 @@ matrix matrix::T() const {
 
 matrix matrix::inv() const {
     if (m != n) throw std::invalid_argument("cannot invert nonsquare matrix");
-    matrix inv(n, n, 1);
+    matrix inv = id(n);
     auto red = *this;
-    red.reduce(inv);
+    int rank;
+    double det = red.reduce(inv, rank);
+    if (det == 0) return zero(m, n);
     return inv;
 }
 
 double matrix::det() const {
     if (m != n) throw std::invalid_argument("cannot calculate determinant");
     auto red = *this;
-    auto dummy = matrix(n, 0);
-    return red.reduce(dummy);
+    matrix tmp = matrix(n, 0);
+    int rank;
+    return red.reduce(tmp, rank);
+}
+
+int matrix::rank() const {
+    auto red = *this;
+    matrix tmp = matrix(n, 0);
+    int rank;
+    red.reduce(tmp, rank);
+    return rank;
 }
 
 std::ostream& operator<<(std::ostream& s, const matrix& a) {
+    s << "[\n";
     for (int i = 0; i < a.m; i++) {
         s << a.data[i];
     }
+    s << "]\n";
     return s;
 }
 

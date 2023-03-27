@@ -2,6 +2,7 @@
 
 #include "matrix.hpp"
 #include <iostream>
+#include <cmath>
 
 namespace linalg {
 
@@ -48,7 +49,7 @@ vector& vector::operator=(const vector& o) {
 bool vector::operator==(const vector& o) const {
     if (n != o.n) return false;
     for (int i = 0; i < n; i++) {
-        if (data[i] != o.data[i]) return false;
+        if (fabs(data[i] - o.data[i]) > 1e-10) return false;
     }
     return true;
 }

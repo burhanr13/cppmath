@@ -12,7 +12,7 @@ int main() {
         }
     }
 
-    linalg::matrix b;
+    linalg::matrix b(4,3);
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 3; j++) {
             b[i][j] = i * 3 + j;
@@ -20,6 +20,8 @@ int main() {
     }
 
     std::cout << a << '\n' << b;
+    std::swap(b[0], b[2]);
+    std::cout << b;
     std::cout << a * b << '\n';
     std::cout << a + a << '\n';
     std::cout << 5 * a << '\n';
@@ -47,6 +49,8 @@ int main() {
     std::cout << sinv << '\n';
     std::cout << s * sinv << '\n';
     std::cout << dets << '\n';
+    std::cout << s.rank() << '\n';
+    std::cout << linalg::matrix({{1, 2, 3}, {4, 5, 6}, {5, 7, 9}}).rank() << '\n';
 
     return 0;
 }
